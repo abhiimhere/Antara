@@ -482,15 +482,16 @@ document.querySelectorAll('.bars > div').forEach(d => bio.observe(d));
 
 /* hero: a fixed composition in Raag Jog, 32 bars of teentaal at 90 bpm, drawn live.
    The saffron meend glides between notes, the blue equal-tempered line chases it in whole semitones.
-   Notation: S G M P n S' (Jog), number = beats, a = andolan (micro variation on a held note). | ends a bar. */
-const JOG = `S2a G2|M1 G1 M2|P3a M1|G2 S2a
+   Notation: S G M P n S' (Jog), number = beats, a = andolan on the held note, m = a slow, smooth meend. | ends a bar.
+   Without m, notes arrive with a wavy overshoot, and longer notes often keep a gentle shimmer. */
+const JOG = `S2a G2m|M1 G1 M2|P3a M1|G2 S2a
 S1 G1 M1 P1|n2a P1 M1|P2 G1 M1|G1 M1 S2
-G1 M1 P2|n1 S'3a|n1 P1 M1 P1|G2 M1 G1
+G1 M1 P2|n1 S'3a|n1 P1 M1 P1|G2m M1 G1
 S.5 G.5 M.5 P.5 n1 P1|M.5 P.5 n.5 S'.5 n1 P1|M2a G1 M1|G1 S3a
 S.5 G.5 M.5 P.5 n.5 S'.5 n.5 P.5|M.5 P.5 G.5 M.5 S2|G.25 M.25 P.25 n.25 S'1 n.5 P.5 M1|P1 M.5 G.5 S2a
 S1 M1 G.5 M.5 P1|n3a S'1|n.5 P.5 M.5 P.5 G2|M1 G1 S2
 G.5 M.5 P.5 n.5 S'2a|S'.25 n.25 P.25 n.25 S'1 n1 P1|M.5 P.5 n.5 P.5 M.5 G.5 M1|P2a M1 G1
-G1 M1 P.5 M.5 G1|M2a G1 M1|G.5 M.5 G.5 S.5 G2|S2a G1 M1`;
+G1 M1 P.5 M.5 G1|M2a G1 M1|G.5 M.5 G.5 S.5 G2m|S2a G1 M1`;
 const SWARA = { S: 0, G: 4, M: 5, P: 7, n: 10, "S'": 12 };
 const BPM = 90, BEAT = 60 / BPM, BAR = 4 * BEAT, SR = 60;   // a bar is one vibhag of 4 matras, 4 bars make one teentaal cycle
 const cv = $('between'), cx = cv.getContext('2d');
@@ -498,25 +499,30 @@ let W = 0, H = 0, focus = 0.5; // 0 = flute side, 1 = keys side, follows the A/B
 const size = () => { const r = cv.getBoundingClientRect(), d = Math.min(2, devicePixelRatio || 1); W = r.width; H = r.height; cv.width = W * d; cv.height = H * d; cx.setTransform(d, 0, 0, d, 0, 0); if (reduce) paintHero(); };
 
 // render the whole composition once into two pitch curves, then only read from them
-const notes = JOG.replace(/\|/g, ' ').trim().split(/\s+/).map(t => { const m = t.match(/^(S'|[SGMPn])([\d.]+)(a?)$/); return { p: SWARA[m[1]], d: +m[2] * BEAT, a: !!m[3] }; });
+const notes = JOG.replace(/\|/g, ' ').trim().split(/\s+/).map(t => { const m = t.match(/^(S'|[SGMPn])([\d.]+)([am]*)$/); return { p: SWARA[m[1]], d: +m[2] * BEAT, a: m[3].includes('a'), m: m[3].includes('m') }; });
 const LEN = notes.reduce((s, n) => s + n.d, 0), TOTAL = Math.round(LEN * SR);
 const meend = new Float32Array(TOTAL), keys = new Float32Array(TOTAL);
 (() => {
-  let p = notes[notes.length - 1].p, v = 0, i = 0, t = 0;
+  let p = notes[notes.length - 1].p, v = 0, i = 0, t = 0, seed = 7;
+  const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;   // fixed seed, so the drawing is the same every visit
   for (const n of notes) {
-    const w = Math.min(40, Math.max(8, 4.5 / n.d));   // short notes snap, long notes glide
+    const slow = n.m, w = slow ? Math.max(4, 1.6 / n.d) : Math.min(46, Math.max(11, 5.5 / n.d));
+    const zeta = slow ? 1 : .32 + rand() * .18;                     // below 1, the pitch overshoots and wavers into the note
+    const shimmer = !slow && (n.a || (n.d >= BEAT && rand() < .6));
+    const rate = 2.6 + rand() * 2.2, depth = n.a ? .38 : .18 + rand() * .16, phase = rand() * 6.3;
     const end = Math.round((t + n.d) * SR);
     for (let k = 0; i < end; i++, k++) {
-      const dt = 1 / SR; v += (w * w * (n.p - p) - 2 * w * v) * dt; p += v * dt;
+      const dt = 1 / SR; v += (w * w * (n.p - p) - 2 * zeta * w * v) * dt; p += v * dt;
       let out = p;
-      if (n.a) { const held = Math.max(0, k / SR - .35); out += Math.sin(held * 2 * Math.PI * 3.2) * .32 * Math.min(1, held * 1.5); }
+      if (shimmer) { const held = Math.max(0, k / SR - .18); out += Math.sin(held * 2 * Math.PI * rate + phase) * depth * Math.min(1, held * 2.5); }
       meend[i] = out;
     }
     t += n.d;
   }
-  // the keys hear the meend a moment late and can only land on whole semitones
+  // the keys hear the meend a moment late and can only land on Jog's five notes
+  const NOTES = [...new Set(Object.values(SWARA))], snap = x => NOTES.reduce((a, b) => Math.abs(b - x) < Math.abs(a - x) ? b : a);
   const delay = Math.round(.2 * SR), hold = Math.round(.15 * SR);
-  for (let i = 0; i < TOTAL; i += hold) { const q = Math.round(meend[(i - delay + TOTAL) % TOTAL]); for (let j = i; j < Math.min(TOTAL, i + hold); j++) keys[j] = q; }
+  for (let i = 0; i < TOTAL; i += hold) { const q = snap(meend[(i - delay + TOTAL) % TOTAL]); for (let j = i; j < Math.min(TOTAL, i + hold); j++) keys[j] = q; }
 })();
 
 const LO = -1, HI = 13, SPAN = 3.2 * BAR;       // about three bars fit in front of the pen
