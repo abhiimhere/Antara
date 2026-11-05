@@ -480,25 +480,104 @@ document.querySelectorAll('.bars > div').forEach(d => { if (!reduce) d.querySele
 const bio = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { bio.unobserve(e.target); e.target.querySelectorAll('i').forEach(i => i.style.setProperty('--s', 1)); } }), { threshold: .4 });
 document.querySelectorAll('.bars > div').forEach(d => bio.observe(d));
 
-/* hero: a gliding line (meend) against a stepped one (equal temperament) */
+/* hero: drawn live. The meend glides freely through a pentatonic scale,
+   the equal-tempered line chases it in fixed steps and never quite arrives */
 const cv = $('between'), cx = cv.getContext('2d');
-let W = 0, H = 0, focus = 0.5; // 0 = flute, 1 = keys, follows the A/B player
+let W = 0, H = 0, focus = 0.5; // 0 = flute side, 1 = keys side, follows the A/B player
 const size = () => { const r = cv.getBoundingClientRect(), d = Math.min(2, devicePixelRatio || 1); W = r.width; H = r.height; cv.width = W * d; cv.height = H * d; cx.setTransform(d, 0, 0, d, 0, 0); };
-size(); addEventListener('resize', size);
-const melody = x => Math.sin(x * 2.1) * .55 + Math.sin(x * 5.3 + 1) * .25 + Math.sin(x * .7) * .35;
-const draw = t => {
+size(); addEventListener('resize', () => { size(); if (reduce) still(); });
+
+const SCALE = [0, 2, 4, 7, 9, 12, 14, 16, 19, 21];   // Sa Re Ga Pa Dha across two octaves
+const LO = -2, HI = 23;                              // pitch range shown, in semitones
+const rnd = (a, b) => a + Math.random() * (b - a);
+const sim = { start: 0, p: 7, v: 0, idx: 3, target: 7, k: 30, next: 0, andolan: 0, gamaka: 0, gUntil: 0, t: 0 };
+let trail = [], lag = [], keyY = 7, keyNext = 0, heroFade = 1, fading = false, last = 0, lastX = 0;
+const SECONDS_ACROSS = 13, KEY_STEP = .16, KEY_DELAY = .22;
+
+function nextNote() {
+  const s = sim, r = Math.random();
+  let step = r < .55 ? (Math.random() < .5 ? -1 : 1) : r < .85 ? (Math.random() < .5 ? -2 : 2) : (Math.random() < .5 ? -3 : 3);
+  s.idx = Math.max(0, Math.min(SCALE.length - 1, s.idx + step));
+  s.target = SCALE[s.idx]; s.start = s.t;
+  const kind = Math.random();
+  if (kind < .45) { s.k = rnd(70, 140); s.next = s.t + rnd(.18, .5); }          // quick, ornamental
+  else if (kind < .82) { s.k = rnd(18, 40); s.next = s.t + rnd(.7, 1.4); }      // a sung phrase
+  else { s.k = rnd(4, 10); s.next = s.t + rnd(1.6, 2.8); }                      // a long, slow meend
+  s.andolan = Math.random() < .35 ? rnd(.25, .45) : 0;                           // slow oscillation on the held note
+  if (Math.random() < .18) { s.gamaka = rnd(5, 8); s.gUntil = s.t + rnd(.35, .7); } // a quick gamaka flourish
+}
+function stepSim(dt) {
+  const s = sim; s.t += dt;
+  if (s.t >= s.next) nextNote();
+  const c = 2 * Math.sqrt(s.k), a = s.k * (s.target - s.p) - c * s.v;
+  s.v += a * dt; s.p += s.v * dt;
+  let p = s.p;
+  if (s.andolan) p += Math.sin(s.t * 2 * Math.PI * .9) * s.andolan * Math.min(1, Math.max(0, s.t - s.start - .3) * 1.2);
+  if (s.t < s.gUntil) p += Math.sin(s.t * 2 * Math.PI * s.gamaka) * .55;
+  lag.push([s.t, p]); while (lag.length && lag[0][0] < s.t - KEY_DELAY - .05) lag.shift();
+  if (s.t >= keyNext) {                         // the keys only move in whole, equal-tempered steps
+    const behind = lag.find(e => e[0] >= s.t - KEY_DELAY) || lag[0];
+    keyY = Math.round(behind[1]); keyNext = s.t + KEY_STEP * rnd(.7, 1.4);
+  }
+  return p;
+}
+const yOf = p => { const top = H * .1, bot = H * .9; return bot - (p - LO) / (HI - LO) * (bot - top); };
+
+function frame(now) {
+  if (!last) last = now;
+  let dt = Math.min(.05, (now - last) / 1000); last = now;
+  if (!fading) {
+    const speed = W / SECONDS_ACROSS;
+    while (dt > 0) {
+      const h = Math.min(dt, 1 / 120); dt -= h;
+      const p = stepSim(h); lastX += speed * h;
+      trail.push([lastX, p, keyY]);
+      if (lastX >= W) { fading = true; break; }
+    }
+  } else {
+    heroFade -= dt / .9;
+    if (heroFade <= 0) { trail = []; lastX = 0; heroFade = 1; fading = false; }
+  }
+  paintHero();
+  requestAnimationFrame(frame);
+}
+function paintHero() {
   cx.clearRect(0, 0, W, H);
-  const mid = H * .46, amp = H * .3, ph = t * .00018, steps = 12;
-  const line = (fn, col, alpha, width) => { cx.beginPath(); for (let px = 0; px <= W; px += 2) { const y = fn(px / W * 9 + ph); px ? cx.lineTo(px, mid - y * amp) : cx.moveTo(px, mid - y * amp); } cx.strokeStyle = col; cx.globalAlpha = alpha; cx.lineWidth = width; cx.stroke(); cx.globalAlpha = 1; };
-  // faint semitone grid
-  cx.strokeStyle = 'rgba(243,232,214,.05)'; cx.lineWidth = 1;
-  for (let i = -steps / 2; i <= steps / 2; i++) { const y = mid - (i / (steps / 2)) * amp; cx.beginPath(); cx.moveTo(0, y); cx.lineTo(W, y); cx.stroke(); }
-  const stepped = x => { const xs = Math.floor(x * 2.2) / 2.2; return Math.round(melody(xs) * steps / 2) / (steps / 2); };
-  line(stepped, '#62c3c6', .35 + focus * .55, 1.6 + focus);
-  line(x => melody(x) + Math.sin(x * 38) * .025, '#e8a33d', .35 + (1 - focus) * .6, 1.6 + (1 - focus) * 1.2);
-  if (!reduce) requestAnimationFrame(draw);
-};
-requestAnimationFrame(draw);
+  // semitone grid, with the pentatonic notes a little brighter: the spots the keys try to fill
+  for (let n = Math.ceil(LO); n <= HI; n++) {
+    const y = Math.round(yOf(n)) + .5, pent = SCALE.includes(n);
+    cx.strokeStyle = pent ? 'rgba(232,163,61,.09)' : 'rgba(243,232,214,.035)'; cx.lineWidth = 1;
+    cx.beginPath(); cx.moveTo(0, y); cx.lineTo(W, y); cx.stroke();
+  }
+  if (trail.length < 2) return;
+  cx.lineJoin = 'round'; cx.lineCap = 'round';
+  // keys: stepped, chasing
+  cx.beginPath();
+  trail.forEach(([x, , k], i) => { const y = yOf(k); if (!i) cx.moveTo(x, y); else { cx.lineTo(x, yOf(trail[i - 1][2])); cx.lineTo(x, y); } });
+  cx.strokeStyle = '#62c3c6'; cx.globalAlpha = (.3 + focus * .55) * heroFade; cx.lineWidth = 1.5 + focus; cx.stroke();
+  // meend: the free, gliding line with a soft glow
+  cx.beginPath();
+  trail.forEach(([x, p], i) => i ? cx.lineTo(x, yOf(p)) : cx.moveTo(x, yOf(p)));
+  cx.strokeStyle = '#e8a33d'; cx.globalAlpha = (.4 + (1 - focus) * .55) * heroFade; cx.lineWidth = 1.8 + (1 - focus) * 1.2;
+  cx.shadowColor = 'rgba(232,163,61,.6)'; cx.shadowBlur = 8; cx.stroke(); cx.shadowBlur = 0;
+  // pen heads
+  const [hx, hp, hk] = trail[trail.length - 1];
+  cx.globalAlpha = heroFade;
+  cx.fillStyle = '#62c3c6'; cx.fillRect(hx - 3, yOf(hk) - 3, 6, 6);
+  const g = cx.createRadialGradient(hx, yOf(hp), 0, hx, yOf(hp), 16);
+  g.addColorStop(0, 'rgba(232,163,61,.55)'); g.addColorStop(1, 'rgba(232,163,61,0)');
+  cx.fillStyle = g; cx.beginPath(); cx.arc(hx, yOf(hp), 16, 0, 7); cx.fill();
+  cx.fillStyle = '#f6d6a3'; cx.beginPath(); cx.arc(hx, yOf(hp), 3.5, 0, 7); cx.fill();
+  cx.globalAlpha = 1;
+}
+function still() {                     // reduced motion: one complete pass, drawn once
+  trail = []; lastX = 0; heroFade = 1; sim.t = 0; sim.next = 0; keyNext = 0; lag = [];
+  const speed = W / SECONDS_ACROSS;
+  while (lastX < W) { const p = stepSim(1 / 120); lastX += speed / 120; trail.push([lastX, p, keyY]); }
+  paintHero();
+}
+const draw = () => paintHero();
+if (reduce) still(); else requestAnimationFrame(frame);
 
 /* the A/B player: both recordings play in sync, a crossfade picks the side you hear */
 const A = $('aA'), B = $('aB'), D = $('aD'), ab = $('ab');
@@ -529,7 +608,7 @@ const choose = s => {
   if (s === 'b' && !bOk) return;
   side = s; btnA.setAttribute('aria-pressed', s === 'a'); btnB.setAttribute('aria-pressed', s === 'b');
   ab.style.setProperty('--glow', s === 'a' ? 'rgba(232,163,61,.16)' : 'rgba(42,140,147,.22)'); ab.style.setProperty('--glow-x', s === 'a' ? '25%' : '75%');
-  focus = s === 'a' ? 0 : 1; if (reduce) draw(0);
+  focus = s === 'a' ? 0 : 1; if (reduce) paintHero();
   fade(); paint();
 };
 btnA.onclick = () => choose('a'); btnB.onclick = () => choose('b');
