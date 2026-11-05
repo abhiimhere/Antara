@@ -480,104 +480,95 @@ document.querySelectorAll('.bars > div').forEach(d => { if (!reduce) d.querySele
 const bio = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { bio.unobserve(e.target); e.target.querySelectorAll('i').forEach(i => i.style.setProperty('--s', 1)); } }), { threshold: .4 });
 document.querySelectorAll('.bars > div').forEach(d => bio.observe(d));
 
-/* hero: drawn live. The meend glides freely through a pentatonic scale,
-   the equal-tempered line chases it in fixed steps and never quite arrives */
+/* hero: a fixed composition in Raag Jog, 32 bars of teentaal at 90 bpm, drawn live.
+   The saffron meend glides between notes, the blue equal-tempered line chases it in whole semitones.
+   Notation: S G M P n S' (Jog), number = beats, a = andolan (micro variation on a held note). | ends a bar. */
+const JOG = `S2a G2|M1 G1 M2|P3a M1|G2 S2a
+S1 G1 M1 P1|n2a P1 M1|P2 G1 M1|G1 M1 S2
+G1 M1 P2|n1 S'3a|n1 P1 M1 P1|G2 M1 G1
+S.5 G.5 M.5 P.5 n1 P1|M.5 P.5 n.5 S'.5 n1 P1|M2a G1 M1|G1 S3a
+S.5 G.5 M.5 P.5 n.5 S'.5 n.5 P.5|M.5 P.5 G.5 M.5 S2|G.25 M.25 P.25 n.25 S'1 n.5 P.5 M1|P1 M.5 G.5 S2a
+S1 M1 G.5 M.5 P1|n3a S'1|n.5 P.5 M.5 P.5 G2|M1 G1 S2
+G.5 M.5 P.5 n.5 S'2a|S'.25 n.25 P.25 n.25 S'1 n1 P1|M.5 P.5 n.5 P.5 M.5 G.5 M1|P2a M1 G1
+G1 M1 P.5 M.5 G1|M2a G1 M1|G.5 M.5 G.5 S.5 G2|S2a G1 M1`;
+const SWARA = { S: 0, G: 4, M: 5, P: 7, n: 10, "S'": 12 };
+const BPM = 90, BEAT = 60 / BPM, BAR = 4 * BEAT, SR = 60;   // a bar is one vibhag of 4 matras, 4 bars make one teentaal cycle
 const cv = $('between'), cx = cv.getContext('2d');
 let W = 0, H = 0, focus = 0.5; // 0 = flute side, 1 = keys side, follows the A/B player
-const size = () => { const r = cv.getBoundingClientRect(), d = Math.min(2, devicePixelRatio || 1); W = r.width; H = r.height; cv.width = W * d; cv.height = H * d; cx.setTransform(d, 0, 0, d, 0, 0); };
-size(); addEventListener('resize', () => { size(); if (reduce) still(); });
+const size = () => { const r = cv.getBoundingClientRect(), d = Math.min(2, devicePixelRatio || 1); W = r.width; H = r.height; cv.width = W * d; cv.height = H * d; cx.setTransform(d, 0, 0, d, 0, 0); if (reduce) paintHero(); };
 
-const SCALE = [0, 2, 4, 7, 9, 12, 14, 16, 19, 21];   // Sa Re Ga Pa Dha across two octaves
-const LO = -2, HI = 23;                              // pitch range shown, in semitones
-const rnd = (a, b) => a + Math.random() * (b - a);
-const sim = { start: 0, p: 7, v: 0, idx: 3, target: 7, k: 30, next: 0, andolan: 0, gamaka: 0, gUntil: 0, t: 0 };
-let trail = [], lag = [], keyY = 7, keyNext = 0, heroFade = 1, fading = false, last = 0, lastX = 0;
-const SECONDS_ACROSS = 13, KEY_STEP = .16, KEY_DELAY = .22;
-
-function nextNote() {
-  const s = sim, r = Math.random();
-  let step = r < .55 ? (Math.random() < .5 ? -1 : 1) : r < .85 ? (Math.random() < .5 ? -2 : 2) : (Math.random() < .5 ? -3 : 3);
-  s.idx = Math.max(0, Math.min(SCALE.length - 1, s.idx + step));
-  s.target = SCALE[s.idx]; s.start = s.t;
-  const kind = Math.random();
-  if (kind < .45) { s.k = rnd(70, 140); s.next = s.t + rnd(.18, .5); }          // quick, ornamental
-  else if (kind < .82) { s.k = rnd(18, 40); s.next = s.t + rnd(.7, 1.4); }      // a sung phrase
-  else { s.k = rnd(4, 10); s.next = s.t + rnd(1.6, 2.8); }                      // a long, slow meend
-  s.andolan = Math.random() < .35 ? rnd(.25, .45) : 0;                           // slow oscillation on the held note
-  if (Math.random() < .18) { s.gamaka = rnd(5, 8); s.gUntil = s.t + rnd(.35, .7); } // a quick gamaka flourish
-}
-function stepSim(dt) {
-  const s = sim; s.t += dt;
-  if (s.t >= s.next) nextNote();
-  const c = 2 * Math.sqrt(s.k), a = s.k * (s.target - s.p) - c * s.v;
-  s.v += a * dt; s.p += s.v * dt;
-  let p = s.p;
-  if (s.andolan) p += Math.sin(s.t * 2 * Math.PI * .9) * s.andolan * Math.min(1, Math.max(0, s.t - s.start - .3) * 1.2);
-  if (s.t < s.gUntil) p += Math.sin(s.t * 2 * Math.PI * s.gamaka) * .55;
-  lag.push([s.t, p]); while (lag.length && lag[0][0] < s.t - KEY_DELAY - .05) lag.shift();
-  if (s.t >= keyNext) {                         // the keys only move in whole, equal-tempered steps
-    const behind = lag.find(e => e[0] >= s.t - KEY_DELAY) || lag[0];
-    keyY = Math.round(behind[1]); keyNext = s.t + KEY_STEP * rnd(.7, 1.4);
-  }
-  return p;
-}
-const yOf = p => { const top = H * .1, bot = H * .9; return bot - (p - LO) / (HI - LO) * (bot - top); };
-
-function frame(now) {
-  if (!last) last = now;
-  let dt = Math.min(.05, (now - last) / 1000); last = now;
-  if (!fading) {
-    const speed = W / SECONDS_ACROSS;
-    while (dt > 0) {
-      const h = Math.min(dt, 1 / 120); dt -= h;
-      const p = stepSim(h); lastX += speed * h;
-      trail.push([lastX, p, keyY]);
-      if (lastX >= W) { fading = true; break; }
+// render the whole composition once into two pitch curves, then only read from them
+const notes = JOG.replace(/\|/g, ' ').trim().split(/\s+/).map(t => { const m = t.match(/^(S'|[SGMPn])([\d.]+)(a?)$/); return { p: SWARA[m[1]], d: +m[2] * BEAT, a: !!m[3] }; });
+const LEN = notes.reduce((s, n) => s + n.d, 0), TOTAL = Math.round(LEN * SR);
+const meend = new Float32Array(TOTAL), keys = new Float32Array(TOTAL);
+(() => {
+  let p = notes[notes.length - 1].p, v = 0, i = 0, t = 0;
+  for (const n of notes) {
+    const w = Math.min(40, Math.max(8, 4.5 / n.d));   // short notes snap, long notes glide
+    const end = Math.round((t + n.d) * SR);
+    for (let k = 0; i < end; i++, k++) {
+      const dt = 1 / SR; v += (w * w * (n.p - p) - 2 * w * v) * dt; p += v * dt;
+      let out = p;
+      if (n.a) { const held = Math.max(0, k / SR - .35); out += Math.sin(held * 2 * Math.PI * 3.2) * .32 * Math.min(1, held * 1.5); }
+      meend[i] = out;
     }
-  } else {
-    heroFade -= dt / .9;
-    if (heroFade <= 0) { trail = []; lastX = 0; heroFade = 1; fading = false; }
+    t += n.d;
   }
-  paintHero();
-  requestAnimationFrame(frame);
-}
+  // the keys hear the meend a moment late and can only land on whole semitones
+  const delay = Math.round(.2 * SR), hold = Math.round(.15 * SR);
+  for (let i = 0; i < TOTAL; i += hold) { const q = Math.round(meend[(i - delay + TOTAL) % TOTAL]); for (let j = i; j < Math.min(TOTAL, i + hold); j++) keys[j] = q; }
+})();
+
+const LO = -1, HI = 13, SPAN = 3.2 * BAR;       // about three bars fit in front of the pen
+const yOf = p => { const top = H * .12, bot = H * .88; return bot - (p - LO) / (HI - LO) * (bot - top); };
+const at = (arr, t) => arr[((Math.floor(t * SR) % TOTAL) + TOTAL) % TOTAL];
+let T = 0, last = 0;
 function paintHero() {
   cx.clearRect(0, 0, W, H);
-  // semitone grid, with the pentatonic notes a little brighter: the spots the keys try to fill
-  for (let n = Math.ceil(LO); n <= HI; n++) {
-    const y = Math.round(yOf(n)) + .5, pent = SCALE.includes(n);
-    cx.strokeStyle = pent ? 'rgba(232,163,61,.09)' : 'rgba(243,232,214,.035)'; cx.lineWidth = 1;
+  const speed = W * .7 / SPAN, penX = Math.min(T * speed, W * .7), t0 = T - penX / speed;
+  // twelve semitone lines, Jog's notes a little brighter
+  for (let n = 0; n <= 12; n++) {
+    const y = Math.round(yOf(n)) + .5, on = Object.values(SWARA).includes(n);
+    cx.strokeStyle = on ? 'rgba(232,163,61,.11)' : 'rgba(243,232,214,.035)'; cx.lineWidth = 1;
     cx.beginPath(); cx.moveTo(0, y); cx.lineTo(W, y); cx.stroke();
   }
-  if (trail.length < 2) return;
+  // teentaal markings: sam (×) on beat 1, khali (0) on beat 9, faint lines at every vibhag
+  cx.font = '600 11px Inter, sans-serif'; cx.textAlign = 'center';
+  for (let b = Math.floor(Math.max(0, t0) / BAR); b * BAR <= T; b++) {
+    const x = penX - (T - b * BAR) * speed; if (x < -2) continue;
+    const pos = b % 4, xr = Math.round(x) + .5;
+    cx.strokeStyle = pos === 0 ? 'rgba(232,163,61,.28)' : 'rgba(243,232,214,.07)';
+    cx.setLineDash(pos === 2 ? [3, 4] : []); cx.beginPath(); cx.moveTo(xr, H * .08); cx.lineTo(xr, H * .9); cx.stroke(); cx.setLineDash([]);
+    if (pos === 0 || pos === 2) { cx.fillStyle = pos === 0 ? 'rgba(232,163,61,.7)' : 'rgba(98,195,198,.6)'; cx.fillText(pos === 0 ? '×' : '0', xr, H * .07); }
+  }
+  const from = Math.max(0, t0), step = 1 / SR * Math.max(1, Math.round(SR / speed * 1.5));
   cx.lineJoin = 'round'; cx.lineCap = 'round';
   // keys: stepped, chasing
+  cx.beginPath(); let prev = null;
+  for (let t = from; t <= T; t += step) { const x = penX - (T - t) * speed, y = yOf(at(keys, t)); if (prev === null) cx.moveTo(x, y); else { cx.lineTo(x, prev); cx.lineTo(x, y); } prev = y; }
+  cx.strokeStyle = '#62c3c6'; cx.globalAlpha = .3 + focus * .55; cx.lineWidth = 1.5 + focus; cx.stroke();
+  // meend
   cx.beginPath();
-  trail.forEach(([x, , k], i) => { const y = yOf(k); if (!i) cx.moveTo(x, y); else { cx.lineTo(x, yOf(trail[i - 1][2])); cx.lineTo(x, y); } });
-  cx.strokeStyle = '#62c3c6'; cx.globalAlpha = (.3 + focus * .55) * heroFade; cx.lineWidth = 1.5 + focus; cx.stroke();
-  // meend: the free, gliding line with a soft glow
-  cx.beginPath();
-  trail.forEach(([x, p], i) => i ? cx.lineTo(x, yOf(p)) : cx.moveTo(x, yOf(p)));
-  cx.strokeStyle = '#e8a33d'; cx.globalAlpha = (.4 + (1 - focus) * .55) * heroFade; cx.lineWidth = 1.8 + (1 - focus) * 1.2;
-  cx.shadowColor = 'rgba(232,163,61,.6)'; cx.shadowBlur = 8; cx.stroke(); cx.shadowBlur = 0;
+  for (let t = from, f = true; t <= T; t += step, f = false) { const x = penX - (T - t) * speed, y = yOf(at(meend, t)); f ? cx.moveTo(x, y) : cx.lineTo(x, y); }
+  cx.strokeStyle = '#e8a33d'; cx.globalAlpha = .4 + (1 - focus) * .55; cx.lineWidth = 1.8 + (1 - focus) * 1.2;
+  cx.shadowColor = 'rgba(232,163,61,.6)'; cx.shadowBlur = 8; cx.stroke(); cx.shadowBlur = 0; cx.globalAlpha = 1;
   // pen heads
-  const [hx, hp, hk] = trail[trail.length - 1];
-  cx.globalAlpha = heroFade;
-  cx.fillStyle = '#62c3c6'; cx.fillRect(hx - 3, yOf(hk) - 3, 6, 6);
-  const g = cx.createRadialGradient(hx, yOf(hp), 0, hx, yOf(hp), 16);
+  const hy = yOf(at(meend, T)), ky = yOf(at(keys, T));
+  cx.fillStyle = '#62c3c6'; cx.fillRect(penX - 3, ky - 3, 6, 6);
+  const g = cx.createRadialGradient(penX, hy, 0, penX, hy, 16);
   g.addColorStop(0, 'rgba(232,163,61,.55)'); g.addColorStop(1, 'rgba(232,163,61,0)');
-  cx.fillStyle = g; cx.beginPath(); cx.arc(hx, yOf(hp), 16, 0, 7); cx.fill();
-  cx.fillStyle = '#f6d6a3'; cx.beginPath(); cx.arc(hx, yOf(hp), 3.5, 0, 7); cx.fill();
-  cx.globalAlpha = 1;
+  cx.fillStyle = g; cx.beginPath(); cx.arc(penX, hy, 16, 0, 7); cx.fill();
+  cx.fillStyle = '#f6d6a3'; cx.beginPath(); cx.arc(penX, hy, 3.5, 0, 7); cx.fill();
 }
-function still() {                     // reduced motion: one complete pass, drawn once
-  trail = []; lastX = 0; heroFade = 1; sim.t = 0; sim.next = 0; keyNext = 0; lag = [];
-  const speed = W / SECONDS_ACROSS;
-  while (lastX < W) { const p = stepSim(1 / 120); lastX += speed / 120; trail.push([lastX, p, keyY]); }
-  paintHero();
+let visible = true;
+new IntersectionObserver(e => { visible = e[0].isIntersecting; }).observe(cv);
+function frame(now) {
+  const dt = last ? Math.min(.05, (now - last) / 1000) : 0; last = now;
+  if (visible && !document.hidden) { T += dt; paintHero(); }
+  requestAnimationFrame(frame);
 }
-const draw = () => paintHero();
-if (reduce) still(); else requestAnimationFrame(frame);
+size(); addEventListener('resize', size);
+if (reduce) { T = SPAN * 1.4; paintHero(); } else requestAnimationFrame(frame);
 
 /* the A/B player: both recordings play in sync, a crossfade picks the side you hear */
 const A = $('aA'), B = $('aB'), D = $('aD'), ab = $('ab');
