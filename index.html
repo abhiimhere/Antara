@@ -11,7 +11,9 @@
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#120709">
-<link rel="icon" href="logosite.png">
+<link rel="icon" href="favicon.svg?v=1" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png?v=1" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&family=Noto+Serif+Devanagari:wght@300;400;600&display=swap" rel="stylesheet">
@@ -167,11 +169,11 @@ figure.side{margin:0;min-width:0}
 .stat p{margin:10px 0 0;color:var(--dim);max-width:28ch}
 .bars{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-bottom:56px}
 .bars h3{font-size:18px;font-weight:500;margin:0 0 16px}
-.bar{display:grid;grid-template-columns:96px minmax(0,1fr) 34px;gap:14px;align-items:center;margin-bottom:12px;font-size:15px}
-.bar span{color:var(--dim)}
-.bar i{display:block;height:10px;border-radius:5px;background:rgba(243,232,214,.08);overflow:hidden}
-.bar i::after{content:"";display:block;height:100%;width:var(--w);border-radius:5px;background:var(--c,var(--saffron));transform-origin:left;transform:scaleX(var(--s,1));transition:transform 1.2s cubic-bezier(.2,.8,.2,1)}
-.bar em{font-style:normal;text-align:right;font-variant-numeric:tabular-nums}
+.brow{display:grid;grid-template-columns:96px minmax(0,1fr) 34px;gap:14px;align-items:center;margin-bottom:12px;font-size:15px}
+.brow span{color:var(--dim)}
+.brow i{display:block;height:10px;border-radius:5px;background:rgba(243,232,214,.08);overflow:hidden}
+.brow i::after{content:"";display:block;height:100%;width:var(--w);border-radius:5px;background:var(--c,var(--saffron));transform-origin:left;transform:scaleX(var(--s,1));transition:transform 1.2s cubic-bezier(.2,.8,.2,1)}
+.brow em{font-style:normal;text-align:right;font-variant-numeric:tabular-nums}
 .words{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:16px;overflow:hidden}
 .words>div{background:var(--room);padding:24px 26px}
 .words h3{margin:0 0 16px;font-size:15px;font-weight:600}
@@ -221,6 +223,49 @@ figure.side{margin:0;min-width:0}
 .credits dd{margin:2px 0 0}
 .credits dd small{color:var(--dim);font-size:14px}
 .links{display:flex;gap:22px;flex-wrap:wrap;margin-top:22px;color:var(--dim)}
+
+/* master bar, the same as the portfolio's */
+body{padding-bottom:var(--bar-h,0px);transition:padding-bottom .3s}
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:rgba(18,7,9,.9);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);transform:translateY(105%);transition:transform .35s ease;padding-bottom:env(safe-area-inset-bottom)}
+.bar.on{transform:none}
+.bar .in{max-width:1240px;margin:0 auto;padding:10px clamp(16px,4vw,48px);display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1.4fr) auto;gap:22px;align-items:center}
+.now{display:flex;gap:12px;align-items:center;min-width:0;cursor:pointer;border-radius:6px}
+.now:hover b{text-decoration:underline;text-underline-offset:3px}
+.now img{width:46px;height:46px;border-radius:4px;object-fit:cover;flex:none;background:var(--room)}
+.now b{display:block;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.now small{display:block;color:var(--dim);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ctl{display:flex;gap:6px;align-items:center}
+.ctl>button{width:40px;height:40px;border-radius:50%;border:0;background:transparent;color:var(--ivory);cursor:pointer;display:grid;place-items:center}
+.ctl>button:hover{background:rgba(243,232,214,.08)}
+.ctl>button.pp2{width:46px;height:46px;background:var(--ivory);color:var(--night)}
+.ctl>button.pp2:hover{background:var(--saffron)}
+.ctl svg{width:18px;height:18px;fill:currentColor}
+.abmini{display:none;margin-left:6px;padding:3px;border-radius:999px;border:1px solid var(--line)}
+.bar.ab .abmini{display:inline-flex}
+.abmini button{width:32px;height:30px;border:0;border-radius:999px;background:transparent;color:var(--dim);font:600 13px Inter,sans-serif;cursor:pointer}
+.abmini #barA[aria-pressed=true]{background:var(--saffron);color:var(--night)}
+.abmini #barB[aria-pressed=true]{background:var(--peacock-lt);color:var(--night)}
+.prog{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;font-size:12.5px;color:var(--dim);font-variant-numeric:tabular-nums}
+.prog canvas{width:100%;height:34px;cursor:pointer;display:block;touch-action:none}
+.vol{display:flex;align-items:center;gap:8px;position:relative}
+.vol button{width:36px;height:36px;border-radius:50%;border:0;background:transparent;color:var(--ivory);cursor:pointer;display:grid;place-items:center}
+.vol button:hover{background:rgba(243,232,214,.08)}
+.vol svg{width:18px;height:18px;fill:currentColor}
+.vol input{width:96px;accent-color:var(--saffron);cursor:pointer}
+@media (max-width:860px),(pointer:coarse){
+  .vol .pop{display:none}
+  .vol.open .pop{display:flex;justify-content:center;position:absolute;bottom:52px;left:50%;transform:translateX(-50%);width:44px;padding:16px 0;background:rgba(18,7,9,.96);border:1px solid var(--line);border-radius:22px}
+  .vol.open input{display:block;width:24px;height:132px;margin:0;padding:0;writing-mode:vertical-lr;direction:rtl}
+}
+@media (max-width:420px){.now img{display:none}}
+@media (max-width:860px){
+  .bar .in{grid-template-columns:minmax(0,1fr) auto auto;grid-template-areas:"now ctl vol" "prog prog prog";gap:8px 10px}
+  .now{grid-area:now}.ctl{grid-area:ctl}.vol{grid-area:vol}.prog{grid-area:prog}
+  .ctl{gap:4px}
+  .abmini{margin-left:2px}
+  #prevBtn,#nextBtn{display:none}
+}
+.film #ytMount,.film iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 
 footer{margin-top:96px;border-top:1px solid var(--line);padding:28px 0 calc(40px + env(safe-area-inset-bottom));display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;color:var(--dim);font-size:14px}
 footer .dev{color:var(--saffron)}
@@ -329,7 +374,7 @@ footer .dev{color:var(--saffron)}
 <section id="listen" aria-labelledby="listen-h">
   <p class="kicker rv">Listen <span class="dev" lang="hi">सुनिए</span></p>
   <h2 id="listen-h" class="rv">Flip between the two sides, mid-phrase.</h2>
-  <p class="lede rv">Both recordings run together in perfect sync. Switch sides at any moment and hear <strong>the same melody lose, or regain, its motion</strong>. Headphones help.</p>
+  <p class="lede rv">Both recordings run together in perfect sync. Switch sides at any moment and hear <strong>the same melody lose, or regain, its motion</strong>, with the room's ambience underneath, as visitors heard it. Headphones help.</p>
 
   <div class="ab rv" id="ab">
     <div class="flip" role="group" aria-label="Choose a side">
@@ -346,12 +391,12 @@ footer .dev{color:var(--saffron)}
     <p class="hint">On a keyboard, press <kbd>Space</kbd> to play or pause, and <kbd>A</kbd> or <kbd>B</kbd> to flip sides.</p>
     <div class="drone">
       <button class="pp" id="drPlay" type="button" aria-label="Play the ambience drone"><svg viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg></button>
-      <div><b><span class="dev" lang="hi">वातावरण</span> Ambience</b><small>The tonal drone that held the room between pieces</small></div>
+      <div><b><span class="dev" lang="hi">वातावरण</span> Ambience</b><small>The tonal drone of the room. It plays under both sides automatically, or listen to it alone here.</small></div>
       <span class="t" id="drT"></span>
     </div>
     <audio id="aA" src="files/flute.mp3" preload="metadata"></audio>
     <audio id="aB" src="files/keys.mp3" preload="metadata"></audio>
-    <audio id="aD" src="files/ambience.mp3" preload="none" loop></audio>
+    <audio id="aD" src="files/ambience.mp3" preload="metadata" loop></audio>
   </div>
 </section>
 
@@ -377,14 +422,14 @@ footer .dev{color:var(--saffron)}
   </div>
   <div class="bars">
     <div class="rv"><h3>Pitch bending heard on the flute side</h3>
-      <div class="bar"><span>Yes, clearly</span><i style="--w:95%"></i><em>19</em></div>
-      <div class="bar"><span>A little</span><i style="--w:5%"></i><em>1</em></div>
-      <div class="bar"><span>Not really</span><i style="--w:0%"></i><em>0</em></div>
+      <div class="brow"><span>Yes, clearly</span><i style="--w:95%"></i><em>19</em></div>
+      <div class="brow"><span>A little</span><i style="--w:5%"></i><em>1</em></div>
+      <div class="brow"><span>Not really</span><i style="--w:0%"></i><em>0</em></div>
     </div>
     <div class="rv"><h3>Pitch bending heard on the keys side</h3>
-      <div class="bar"><span>Yes, clearly</span><i style="--w:15%;--c:var(--peacock-lt)"></i><em>3</em></div>
-      <div class="bar"><span>A little</span><i style="--w:35%;--c:var(--peacock-lt)"></i><em>7</em></div>
-      <div class="bar"><span>Not really</span><i style="--w:50%;--c:var(--peacock-lt)"></i><em>10</em></div>
+      <div class="brow"><span>Yes, clearly</span><i style="--w:15%;--c:var(--peacock-lt)"></i><em>3</em></div>
+      <div class="brow"><span>A little</span><i style="--w:35%;--c:var(--peacock-lt)"></i><em>7</em></div>
+      <div class="brow"><span>Not really</span><i style="--w:50%;--c:var(--peacock-lt)"></i><em>10</em></div>
     </div>
   </div>
   <p class="lede rv" style="margin-bottom:22px">The one-word responses gave the clearest evidence. The two vocabularies did not cross at all.</p>
@@ -450,6 +495,20 @@ footer .dev{color:var(--saffron)}
   <span><span class="dev" lang="hi">अन्तरा</span> Antara, between the notes. ReSound, 2026</span>
   <a href="https://abhiimhere.github.io/">abhiimhere.github.io</a>
 </footer>
+</div>
+
+<div class="bar" id="bar" role="region" aria-label="Player">
+  <div class="in">
+    <div class="now" id="nowBox" role="button" tabindex="0" title="Go to what is playing"><img id="barImg" alt=""><div style="min-width:0"><b id="barTitle"></b><small id="barSub"></small></div></div>
+    <div class="ctl">
+      <button id="prevBtn" aria-label="Previous"><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button>
+      <button id="ppBtn" class="pp2" aria-label="Play"><svg viewBox="0 0 24 24"><path id="ppIcon" d="M7 4v16l13-8z"/></svg></button>
+      <button id="nextBtn" aria-label="Next"><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
+      <span class="abmini" role="group" aria-label="Side"><button id="barA" aria-pressed="true">A</button><button id="barB" aria-pressed="false">B</button></span>
+    </div>
+    <div class="prog"><span id="tCur">0:00</span><canvas id="barWave" aria-label="Seek"></canvas><span id="tDur">0:00</span></div>
+    <div class="vol" id="volBox"><button id="muteBtn" aria-label="Volume"><svg viewBox="0 0 24 24" id="volIcon"></svg></button><span class="pop"><input type="range" id="volRange" min="0" max="100" step="1" value="80" aria-label="Volume"></span></div>
+  </div>
 </div>
 
 <script>
@@ -576,96 +635,204 @@ function frame(now) {
 size(); addEventListener('resize', size);
 if (reduce) { T = SPAN * 1.4; paintHero(); } else requestAnimationFrame(frame);
 
-/* the A/B player: both recordings play in sync, a crossfade picks the side you hear */
+/* ---------- one audio graph: flute, keys and the ambience bed, through a master volume ---------- */
 const A = $('aA'), B = $('aB'), D = $('aD'), ab = $('ab');
 const btnA = ab.querySelector('.flip .a'), btnB = ab.querySelector('.flip .b');
-let side = 'a', ctx = null, gA = null, gB = null, playing = false, peaks = { a: null, b: null }, bOk = true;
-const fmt = s => isFinite(s) ? Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0') : '0:00';
-const setIcon = (path, on) => path.setAttribute('d', on ? 'M6 4h4v16H6zM14 4h4v16h-4z' : 'M7 4v16l13-8z');
+const fmt = s => isFinite(s) && s >= 0 ? Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0') : '0:00';
+const PLAY = 'M7 4v16l13-8z', PAUSE = 'M6 4h4v16H6zM14 4h4v16h-4z';
+let side = 'a', ctx = null, gA, gB, gD, master, peaks = { a: null, b: null }, bOk = true, droneTimer = 0;
+const vol = { v: .8, muted: false };
+try { const sv = JSON.parse(sessionStorage.getItem('antaraVol') || 'null'); if (sv) Object.assign(vol, sv); } catch (_) {}
 fetch('files/flute.peaks.json').then(r => r.json()).then(p => { peaks.a = p; paint(); }).catch(() => {});
 fetch('files/keys.peaks.json').then(r => r.ok ? r.json() : null).then(p => { peaks.b = p; paint(); }).catch(() => {});
 B.addEventListener('error', () => { bOk = false; btnB.disabled = true; btnB.querySelector('small').textContent = 'Recording coming soon'; });
-B.addEventListener('loadedmetadata', () => { if (B.duration < 5) B.dispatchEvent(new Event('error')); });
-const graph = () => {
+
+function graph() {
   if (ctx) return;
   try {
     ctx = new (window.AudioContext || window.webkitAudioContext)();
-    gA = ctx.createGain(); gB = ctx.createGain();
-    ctx.createMediaElementSource(A).connect(gA).connect(ctx.destination);
-    ctx.createMediaElementSource(B).connect(gB).connect(ctx.destination);
-    gA.gain.value = side === 'a' ? 1 : 0; gB.gain.value = side === 'b' ? 1 : 0;
+    master = ctx.createGain(); master.connect(ctx.destination);
+    [gA, gB, gD] = [A, B, D].map(el => { const g = ctx.createGain(); ctx.createMediaElementSource(el).connect(g).connect(master); return g; });
+    gA.gain.value = side === 'a' ? 1 : 0; gB.gain.value = side === 'b' ? 1 : 0; gD.gain.value = 0;
+    applyVol();
   } catch (_) { ctx = null; }
+}
+const ramp = (g, v, secs) => { const t = ctx.currentTime; g.gain.cancelScheduledValues(t); g.gain.setValueAtTime(g.gain.value, t); g.gain.linearRampToValueAtTime(v, t + secs); };
+function applyVol() {
+  const v = vol.muted ? 0 : vol.v;
+  if (master) master.gain.value = v; else [A, B, D].forEach(el => el.volume = v);
+  if (yt && yt.setVolume) { yt.setVolume(Math.round(v * 100)); vol.muted ? yt.mute() : yt.unMute(); }
+  try { sessionStorage.setItem('antaraVol', JSON.stringify(vol)); } catch (_) {}
+  $('volRange').value = Math.round(vol.v * 100); $('volRange').style.setProperty('--p', Math.round(vol.v * 100) + '%');
+  $('volIcon').innerHTML = v === 0 ? '<path d="M4 9h4l5-4v14l-5-4H4zM16 9l5 6M21 9l-5 6" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="M4 9h4l5-4v14l-5-4H4z"/>' : '<path d="M4 9h4l5-4v14l-5-4H4zM16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="M4 9h4l5-4v14l-5-4H4z"/>';
+}
+
+/* ---------- what is playing: the comparison, the ambience on its own, or the interview film ---------- */
+let current = null, playing = false;   // current: 'ab' | 'drone' | 'film'
+const ITEMS = {
+  ab: { title: () => side === 'a' ? 'Side A, flute' : 'Side B, keys', sub: () => 'Antara · ' + (side === 'a' ? 'microtonal, with ambience' : 'equal temperament, with ambience'), img: () => side === 'a' ? 'img/mural.jpg' : 'img/cubist.jpg', el: '#listen' },
+  drone: { title: () => 'Ambience', sub: () => 'Antara · the tonal drone, on its own', img: () => 'img/mural.jpg', el: '#listen' },
+  film: { title: () => 'The interviews', sub: () => 'Paulson K J and Abhay Nayampally', img: () => 'https://i.ytimg.com/vi/3jtZpy1BjrU/mqdefault.jpg', el: '#interviews' }
 };
-const fade = () => {
-  const on = side === 'a' ? 1 : 0;
-  if (ctx) { const t = ctx.currentTime; [[gA, on], [gB, 1 - on]].forEach(([g, v]) => { g.gain.cancelScheduledValues(t); g.gain.setValueAtTime(g.gain.value, t); g.gain.linearRampToValueAtTime(v, t + .12); }); }
-  else { A.muted = side !== 'a'; B.muted = side !== 'b'; }
-};
-const choose = s => {
+const order = ['ab', 'drone', 'film'];
+
+function syncDrone() { if (D.duration) D.currentTime = A.currentTime % D.duration; }
+async function startAB() {
+  stopFilm(); graph(); if (ctx && ctx.state === 'suspended') await ctx.resume();
+  clearTimeout(droneTimer);
+  if (bOk) B.currentTime = A.currentTime;
+  if (D.paused) { syncDrone(); D.play().catch(() => {}); }
+  if (ctx) { ramp(gD, 1, .8); ramp(gA, side === 'a' ? 1 : 0, .12); ramp(gB, side === 'b' ? 1 : 0, .12); }
+  try { await A.play(); if (bOk) B.play().catch(() => {}); current = 'ab'; playing = true; } catch (_) { playing = false; }
+  ui();
+}
+function stopAB(fadeSecs = 4) {
+  A.pause(); B.pause();
+  if (current === 'ab') playing = false;
+  // the ambience lingers and fades out over four seconds
+  if (!D.paused) {
+    if (ctx) { ramp(gD, 0, fadeSecs); clearTimeout(droneTimer); droneTimer = setTimeout(() => D.pause(), fadeSecs * 1000 + 50); }
+    else D.pause();
+  }
+  ui();
+}
+async function startDrone() {
+  stopAB(.3); stopFilm(); graph(); if (ctx && ctx.state === 'suspended') await ctx.resume();
+  clearTimeout(droneTimer); if (ctx) ramp(gD, 1, .8);
+  try { await D.play(); current = 'drone'; playing = true; } catch (_) {}
+  ui();
+}
+function stopDrone() { if (ctx) { ramp(gD, 0, 4); clearTimeout(droneTimer); droneTimer = setTimeout(() => D.pause(), 4050); } else D.pause(); if (current === 'drone') playing = false; ui(); }
+
+function choose(s) {
   if (s === 'b' && !bOk) return;
   side = s; btnA.setAttribute('aria-pressed', s === 'a'); btnB.setAttribute('aria-pressed', s === 'b');
+  $('barA').setAttribute('aria-pressed', s === 'a'); $('barB').setAttribute('aria-pressed', s === 'b');
   ab.style.setProperty('--glow', s === 'a' ? 'rgba(232,163,61,.16)' : 'rgba(42,140,147,.22)'); ab.style.setProperty('--glow-x', s === 'a' ? '25%' : '75%');
   focus = s === 'a' ? 0 : 1; if (reduce) paintHero();
-  fade(); paint();
-};
+  if (ctx) { ramp(gA, s === 'a' ? 1 : 0, .12); ramp(gB, s === 'b' ? 1 : 0, .12); } else { A.muted = s !== 'a'; B.muted = s !== 'b'; }
+  paint(); ui();
+}
 btnA.onclick = () => choose('a'); btnB.onclick = () => choose('b');
-const play = async () => {
-  stopDrone(); graph(); if (ctx && ctx.state === 'suspended') await ctx.resume();
-  if (bOk) B.currentTime = A.currentTime;
-  fade();
-  try { await A.play(); if (bOk) await B.play().catch(() => {}); playing = true; } catch (_) { playing = false; }
-  setIcon($('abIcon'), playing); $('abPlay').setAttribute('aria-label', playing ? 'Pause' : 'Play');
-};
-const pause = () => { A.pause(); B.pause(); playing = false; setIcon($('abIcon'), false); $('abPlay').setAttribute('aria-label', 'Play'); };
-$('abPlay').onclick = () => playing ? pause() : play();
-A.addEventListener('ended', pause);
-setInterval(() => { if (playing && bOk && Math.abs(B.currentTime - A.currentTime) > .08) B.currentTime = A.currentTime; }, 1000);
+$('barA').onclick = () => choose('a'); $('barB').onclick = () => choose('b');
+$('abPlay').onclick = () => (current === 'ab' && playing) ? stopAB() : startAB();
+$('drPlay').onclick = () => (current === 'drone' && playing) ? stopDrone() : startDrone();
+A.addEventListener('ended', () => stopAB());
+setInterval(() => { if (current === 'ab' && playing && bOk && Math.abs(B.currentTime - A.currentTime) > .08) B.currentTime = A.currentTime; }, 1000);
 A.addEventListener('loadedmetadata', () => { $('abDur').textContent = fmt(A.duration); });
 A.addEventListener('timeupdate', () => { $('abNow').textContent = fmt(A.currentTime); $('abWave').setAttribute('aria-valuenow', Math.round(A.currentTime / (A.duration || 1) * 100)); paint(); });
+D.addEventListener('timeupdate', () => { $('drT').textContent = fmt(D.currentTime); });
 
+/* ---------- the interview film, through the YouTube player so the bar can drive it ---------- */
+let yt = null, ytReady = null;
+function loadYT() {
+  if (ytReady) return ytReady;
+  ytReady = new Promise(res => {
+    window.onYouTubeIframeAPIReady = () => {
+      $('film').innerHTML = '<div id="ytMount"></div>';
+      yt = new YT.Player('ytMount', { videoId: '3jtZpy1BjrU', host: 'https://www.youtube-nocookie.com',
+        playerVars: { rel: 0, playsinline: 1, modestbranding: 1 },
+        events: { onReady: () => { applyVol(); res(); }, onStateChange: e => {
+          if (e.data === 1) { if (current !== 'film') { stopAB(); if (current === 'drone') stopDrone(); } current = 'film'; playing = true; }
+          else if (current === 'film' && (e.data === 2 || e.data === 0)) playing = false;
+          ui();
+        } } });
+    };
+    const sc = document.createElement('script'); sc.src = 'https://www.youtube.com/iframe_api'; document.head.appendChild(sc);
+  });
+  return ytReady;
+}
+async function startFilm() { stopAB(); if (current === 'drone') stopDrone(); await loadYT(); yt.playVideo(); }
+function stopFilm() { if (yt && yt.pauseVideo && current === 'film') yt.pauseVideo(); }
+$('film').querySelector('button').onclick = startFilm;
+
+/* ---------- the master bar ---------- */
+const bar = $('bar');
+function ui() {
+  const it = current && ITEMS[current];
+  if (it) {
+    bar.classList.add('on'); document.body.style.setProperty('--bar-h', bar.offsetHeight + 'px');
+    $('barTitle').textContent = it.title(); $('barSub').textContent = it.sub();
+    if ($('barImg').getAttribute('src') !== it.img()) $('barImg').src = it.img();
+    bar.classList.toggle('ab', current === 'ab');
+  }
+  $('ppIcon').setAttribute('d', playing ? PAUSE : PLAY); $('ppBtn').setAttribute('aria-label', playing ? 'Pause' : 'Play');
+  $('abIcon').setAttribute('d', current === 'ab' && playing ? PAUSE : PLAY); $('abPlay').setAttribute('aria-label', current === 'ab' && playing ? 'Pause' : 'Play');
+  $('drPlay').querySelector('path').setAttribute('d', current === 'drone' && playing ? PAUSE : PLAY);
+  if ('mediaSession' in navigator && it) {
+    navigator.mediaSession.metadata = new MediaMetadata({ title: it.title(), artist: 'Abhinav K Jayan', album: 'Antara, between the notes', artwork: [{ src: new URL(it.img(), location.href).href, sizes: '512x512', type: 'image/jpeg' }] });
+    navigator.mediaSession.playbackState = playing ? 'playing' : 'paused';
+  }
+}
+const toggle = () => {
+  if (!current) return startAB();
+  if (current === 'ab') return playing ? stopAB() : startAB();
+  if (current === 'drone') return playing ? stopDrone() : startDrone();
+  if (current === 'film' && yt) return playing ? yt.pauseVideo() : yt.playVideo();
+};
+const go = dir => { const i = order.indexOf(current || 'ab'), n = order[(i + dir + order.length) % order.length]; ({ ab: startAB, drone: startDrone, film: startFilm })[n](); };
+$('ppBtn').onclick = toggle; $('prevBtn').onclick = () => go(-1); $('nextBtn').onclick = () => go(1);
+$('nowBox').onclick = () => { const it = current && ITEMS[current]; if (it) document.querySelector(it.el).scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' }); };
+$('nowBox').onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('nowBox').click(); } };
+if ('mediaSession' in navigator) {
+  navigator.mediaSession.setActionHandler('play', toggle); navigator.mediaSession.setActionHandler('pause', toggle);
+  navigator.mediaSession.setActionHandler('previoustrack', () => go(-1)); navigator.mediaSession.setActionHandler('nexttrack', () => go(1));
+}
+// volume
+$('volRange').addEventListener('input', e => { vol.v = e.target.value / 100; vol.muted = vol.v === 0; applyVol(); });
+const narrow = matchMedia('(max-width: 860px), (pointer: coarse)');
+$('muteBtn').onclick = e => { if (narrow.matches) { e.stopPropagation(); $('volBox').classList.toggle('open'); return; } vol.muted = !vol.muted; applyVol(); };
+document.addEventListener('click', e => { if (!e.target.closest('#volBox')) $('volBox').classList.remove('open'); });
+applyVol();
+
+// progress in the bar: the waveform for the comparison, a plain line for the rest
+const bw = $('barWave'), bx = bw.getContext('2d');
+const pos = () => current === 'film' && yt && yt.getCurrentTime ? [yt.getCurrentTime(), yt.getDuration()] : current === 'drone' ? [D.currentTime, D.duration] : [A.currentTime, A.duration || 938.4];
+function paintBar() {
+  const r = bw.getBoundingClientRect(), d = Math.min(2, devicePixelRatio || 1);
+  if (!r.width) return;
+  if (bw.width !== Math.round(r.width * d)) { bw.width = r.width * d; bw.height = r.height * d; }
+  bx.setTransform(d, 0, 0, d, 0, 0); bx.clearRect(0, 0, r.width, r.height);
+  const [t, dur] = pos(), k = dur ? t / dur : 0, col = current === 'ab' && side === 'b' ? '#62c3c6' : '#e8a33d';
+  $('tCur').textContent = fmt(t); $('tDur').textContent = fmt(dur);
+  const pk = current === 'ab' ? (peaks[side] || peaks.a) : null, mid = r.height / 2;
+  if (pk) { const n = Math.floor(r.width / 3); for (let i = 0; i < n; i++) { const v = pk[Math.floor(i / n * pk.length)] || 0, h = Math.max(2, v * r.height * .9); bx.fillStyle = i / n < k ? col : 'rgba(243,232,214,.22)'; bx.fillRect(i * 3, mid - h / 2, 2, h); } }
+  else { bx.fillStyle = 'rgba(243,232,214,.2)'; bx.fillRect(0, mid - 1.5, r.width, 3); bx.fillStyle = col; bx.fillRect(0, mid - 1.5, r.width * k, 3); }
+}
+setInterval(() => { if (current) paintBar(); }, 250);
+const seekBar = x => {
+  const r = bw.getBoundingClientRect(), k = Math.min(1, Math.max(0, (x - r.left) / r.width)), [, dur] = pos();
+  if (current === 'film' && yt) yt.seekTo(k * dur, true);
+  else if (current === 'drone') D.currentTime = k * D.duration;
+  else { A.currentTime = k * (A.duration || 938.4); if (bOk) B.currentTime = A.currentTime; syncDrone(); }
+  paintBar(); paint();
+};
+bw.addEventListener('pointerdown', e => { bw.setPointerCapture(e.pointerId); seekBar(e.clientX); const mv = ev => seekBar(ev.clientX); bw.addEventListener('pointermove', mv); bw.addEventListener('pointerup', () => bw.removeEventListener('pointermove', mv), { once: true }); });
+
+// the waveform inside the comparison panel
 const wave = $('abWave'), wc = wave.querySelector('canvas'), wx = wc.getContext('2d');
 function paint() {
   const r = wave.getBoundingClientRect(), d = Math.min(2, devicePixelRatio || 1);
+  if (!r.width) return;
   if (wc.width !== Math.round(r.width * d)) { wc.width = r.width * d; wc.height = r.height * d; }
   wx.setTransform(d, 0, 0, d, 0, 0); wx.clearRect(0, 0, r.width, r.height);
   const p = peaks[side] || peaks.a; if (!p) return;
   const n = Math.floor(r.width / 4), mid = r.height / 2, prog = A.currentTime / (A.duration || 938.4);
   const col = side === 'a' ? '#e8a33d' : '#62c3c6';
-  for (let i = 0; i < n; i++) {
-    const v = p[Math.floor(i / n * p.length)] || 0, h = Math.max(2, v * (r.height * .92));
-    wx.fillStyle = i / n < prog ? col : 'rgba(243,232,214,.22)';
-    wx.fillRect(i * 4, mid - h / 2, 2, h);
-  }
+  for (let i = 0; i < n; i++) { const v = p[Math.floor(i / n * p.length)] || 0, h = Math.max(2, v * (r.height * .92)); wx.fillStyle = i / n < prog ? col : 'rgba(243,232,214,.22)'; wx.fillRect(i * 4, mid - h / 2, 2, h); }
 }
-addEventListener('resize', paint);
-const seekTo = x => { const r = wave.getBoundingClientRect(), k = Math.min(1, Math.max(0, (x - r.left) / r.width)); A.currentTime = k * (A.duration || 938.4); if (bOk) B.currentTime = A.currentTime; paint(); };
+addEventListener('resize', () => { paint(); paintBar(); });
+const seekTo = x => { const r = wave.getBoundingClientRect(), k = Math.min(1, Math.max(0, (x - r.left) / r.width)); A.currentTime = k * (A.duration || 938.4); if (bOk) B.currentTime = A.currentTime; syncDrone(); paint(); };
 wave.addEventListener('pointerdown', e => { wave.setPointerCapture(e.pointerId); seekTo(e.clientX); const mv = ev => seekTo(ev.clientX); wave.addEventListener('pointermove', mv); wave.addEventListener('pointerup', () => wave.removeEventListener('pointermove', mv), { once: true }); });
-wave.addEventListener('keydown', e => { if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); A.currentTime = Math.max(0, A.currentTime + (e.key === 'ArrowRight' ? 10 : -10)); if (bOk) B.currentTime = A.currentTime; paint(); } });
+wave.addEventListener('keydown', e => { if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); A.currentTime = Math.max(0, A.currentTime + (e.key === 'ArrowRight' ? 10 : -10)); if (bOk) B.currentTime = A.currentTime; syncDrone(); paint(); } });
 addEventListener('keydown', e => {
   if (e.target.closest('input,textarea,a,[role=slider]') || (e.code === 'Space' && e.target.closest('button'))) return;
+  if (e.code === 'Space' && current) { e.preventDefault(); toggle(); return; }
   const r = ab.getBoundingClientRect(); if (r.bottom < 0 || r.top > innerHeight) return;
-  if (e.code === 'Space') { e.preventDefault(); playing ? pause() : play(); }
+  if (e.code === 'Space') { e.preventDefault(); toggle(); }
   if (e.key === 'a' || e.key === 'A') choose('a');
   if (e.key === 'b' || e.key === 'B') choose('b');
 });
-
-/* ambience drone */
-const drIcon = $('drPlay').querySelector('path');
-function stopDrone() { D.pause(); setIcon(drIcon, false); }
-D.addEventListener('error', () => { $('drPlay').disabled = true; $('drPlay').style.opacity = .4; $('drT').textContent = 'Coming soon'; });
-D.addEventListener('timeupdate', () => { $('drT').textContent = fmt(D.currentTime); });
-$('drPlay').onclick = async () => { if (!D.paused) return stopDrone(); pause(); try { await D.play(); setIcon(drIcon, true); } catch (_) {} };
-
-/* media session so the lock screen shows Antara */
-if ('mediaSession' in navigator) {
-  navigator.mediaSession.metadata = new MediaMetadata({ title: 'Antara, between the notes', artist: 'Abhinav K Jayan', artwork: [{ src: 'img/mural.jpg', sizes: '1000x1350', type: 'image/jpeg' }] });
-  navigator.mediaSession.setActionHandler('play', play); navigator.mediaSession.setActionHandler('pause', pause);
-}
-
-/* interview film loads only when asked */
-$('film').querySelector('button').onclick = () => {
-  $('film').innerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/3jtZpy1BjrU?autoplay=1&rel=0" title="Antara interviews, Paulson K J and Abhay Nayampally" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>';
-};
 })();
 </script>
 </body>
